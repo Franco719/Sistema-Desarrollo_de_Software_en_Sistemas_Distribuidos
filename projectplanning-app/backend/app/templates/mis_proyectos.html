@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Mis Proyectos</h2>
+  <p class="card-text small text-muted">Monitorización de proyectos propios y proyectos en los que aportaste.</p>
+  {% if proyectos_data %}
+  <div class="accordion" id="accordionProyectos">
+    {% for item in proyectos_data %}
+    {% with p=item.proyecto es_originante=item.es_originante %}
+    <div class="accordion-item mb-3">
+      <h2 class="accordion-header" id="heading{{ p.id }}">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ p.id }}" aria-expanded="false" aria-controls="collapse{{ p.id }}">
+          <strong>{{ p.nombre }}</strong> &nbsp;
+          {% if es_originante %}
+            <span class="badge bg-primary ms-2">Originante</span>
+          {% else %}
+            <span class="badge bg-secondary ms-2">Colaborador</span>
+          {% endif %}
+          <span class="badge bg-info ms-2">{{ p.estado }}</span>
+          <span class="text-muted ms-3 small">{{ p.fecha_inicio }} - {{ p.fecha_fin }}</span>
+        </button>
+      </h2>
+      <div id="collapse{{ p.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ p.id }}" data-bs-parent="#accordionProyectos">
+        <div class="accordion-body">
+          <p><strong>Plan económico:</strong> {{ p.plan_economico }}</p>
+          
+          <h5 class="mt-3">Observaciones</h5>
+          {% if p.observation_set.all %}
+            <ul class="list-group mb-3">
+              {% for obs in p.observation_set.all %}
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                  <div class="flex-grow-1">
+                    <p class="mb-1">{{ obs.text }}</p>
+                    <span class="badge bg-{% if obs.estado == 'Pendiente' %}warning text-dark{% else %}success{% endif %}">
+                      {{ obs.estado }}
+                    </span>
+                  </div>
+                  {% if obs.estado == 'Pendiente' and es_originante %}
+                    <form method="post" action="{% url 'resolver_observacion' obs.id %}" style="display:inline;">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-success ms-2">Marcar como Resuelto</button>
+                    </form>
+                  {% elif obs.estado == 'Pendiente' and not es_originante %}
+                    <button type="button" class="btn btn-sm btn-secondary ms-2" disabled title="Solo el originante puede marcar observaciones como resueltas">
+                      Marcar como Resuelto
+                    </button>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted">No hay observaciones para este proyecto.</p>
+          {% endif %}
+
+          {% if es_originante %}
+            <a href="{% url 'project_compromises' p.id %}" class="btn btn-sm btn-primary">Ver compromisos</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endwith %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <p>No tenés proyectos creados ni has colaborado en ninguno.</p>
+  {% endif %}
+</div>
+{% endblock %}

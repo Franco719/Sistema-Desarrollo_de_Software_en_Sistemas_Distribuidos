@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+
+{% block title %}Alta de Proyecto — ProjectPlanning{% endblock %}
+
+{% block content %}
+  <h1 class="mb-4">Alta de Proyecto</h1>
+
+  {% if errores_proyecto %}
+    <div class="alert alert-danger">
+        {{ errores_proyecto }}
+    </div>
+  {% endif %}
+
+  {% if errores_etapas %}
+    <div class="alert alert-danger">
+        <ul>
+        {% for error in errores_etapas %}
+            <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+  {% endif %}
+
+
+  <form method="post" action="{% url 'alta_proyecto' %}">
+    {% csrf_token %}
+    <!-- Nombre -->
+    <div class="mb-3">
+      <label for="nombre" class="form-label">Nombre del proyecto</label>
+      <input type="text" class="form-control" id="nombre" name="nombre" required>
+    </div>
+
+    <!-- Fechas -->
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="fecha_inicio" class="form-label">Fecha de inicio</label>
+        <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label for="fecha_fin" class="form-label">Fecha de fin</label>
+        <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" required>
+      </div>
+    </div>
+
+    <!-- Plan económico -->
+    <div class="mb-3">
+      <label for="plan_economico" class="form-label">Plan económico</label>
+      <textarea class="form-control" id="plan_economico" name="plan_economico" rows="3" required></textarea>
+    </div>
+
+    <!-- Etapas -->
+    <div class="mb-3">
+      <h4>Plan de trabajo / Etapas</h4>
+      <div id="etapas-container">
+        <div class="etapa border rounded p-3 mb-3" data-etapa-index="0">
+          <div class="mb-2">
+            <label class="form-label">Nombre de la etapa</label>
+            <input type="text" class="form-control etapa-nombre" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Aporte necesario</label>
+            <input type="text" class="form-control aporte-necesario" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Cantidad de aporte necesario</label>
+            <input type="number" class="form-control cant-aporte" min="1" required>
+          </div>
+          <div class="row">
+            <div class="col-md-4 mb-2">
+              <label class="form-label">Fecha de inicio</label>
+              <input type="date" class="form-control etapa-inicio" required>
+            </div>
+            <div class="col-md-4 mb-2">
+              <label class="form-label">Fecha de fin</label>
+              <input type="date" class="form-control etapa-fin" required>
+            </div>
+            <div class="col-md-4 d-flex align-items-center">
+              <div class="form-check mt-4">
+                <input class="form-check-input etapa-ayuda" type="checkbox">
+                <label class="form-check-label">Se requiere ayuda</label>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-sm btn-danger remove-etapa">Eliminar etapa</button>
+        </div>
+      </div>
+      <button type="button" class="btn btn-outline-primary mt-2" id="add-etapa">Agregar etapa</button>
+    </div>
+
+    <!-- Campos ocultos para enviar las etapas como diccionario -->
+    <div id="hidden-etapas"></div>
+
+    <button type="submit" class="btn btn-primary">Crear Proyecto</button>
+  </form>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  const addBtn = document.getElementById('add-etapa');
+  const container = document.getElementById('etapas-container');
+  let etapaCounter = 0;
+
+  // Función para actualizar los campos ocultos con la estructura de diccionario
+  function updateHiddenFields() {
+    const hiddenContainer = document.getElementById('hidden-etapas');
+    hiddenContainer.innerHTML = ''; // Limpiar campos anteriores
+    
+    const etapas = container.querySelectorAll('.etapa');
+    etapas.forEach((etapa, index) => {
+      const nombre = etapa.querySelector('.etapa-nombre').value.trim();
+      const aporte = etapa.querySelector('.aporte-necesario').value.trim();
+      const cantidad = etapa.querySelector('.cant-aporte').value.trim();
+      const inicio = etapa.querySelector('.etapa-inicio').value;
+      const fin = etapa.querySelector('.etapa-fin').value;
+      const ayuda = etapa.querySelector('.etapa-ayuda').checked ? 'true' : 'false';
+      
+      if (nombre) { // Solo agregar si tiene nombre
+        // Crear campos ocultos para el diccionario
+        // La estructura será: etapas[nombre_etapa][inicio], etapas[nombre_etapa][fin], etapas[nombre_etapa][ayuda]
+        const inputInicio = document.createElement('input');
+        inputInicio.type = 'hidden';
+        inputInicio.name = `etapas[${nombre}][inicio]`;
+        inputInicio.value = inicio;
+        hiddenContainer.appendChild(inputInicio);
+        
+        const inputFin = document.createElement('input');
+        inputFin.type = 'hidden';
+        inputFin.name = `etapas[${nombre}][fin]`;
+        inputFin.value = fin;
+        hiddenContainer.appendChild(inputFin);
+        
+        const inputAyuda = document.createElement('input');
+        inputAyuda.type = 'hidden';
+        inputAyuda.name = `etapas[${nombre}][ayuda]`;
+        inputAyuda.value = ayuda;
+        hiddenContainer.appendChild(inputAyuda);
+
+        const inputAporte = document.createElement('input');
+        inputAporte.type = 'hidden';
+        inputAporte.name = `etapas[${nombre}][aporte]`;
+        inputAporte.value = aporte;
+        hiddenContainer.appendChild(inputAporte);
+
+        const inputCantidad = document.createElement('input');
+        inputCantidad.type = 'hidden';
+        inputCantidad.name = `etapas[${nombre}][cantidad]`;
+        inputCantidad.value = cantidad;
+        hiddenContainer.appendChild(inputCantidad);
+      }
+    });
+  }
+
+  // Actualizar campos ocultos cuando cambian los valores
+  container.addEventListener('input', updateHiddenFields);
+  container.addEventListener('change', updateHiddenFields);
+
+  addBtn.addEventListener('click', () => {
+    etapaCounter++;
+    const clone = container.firstElementChild.cloneNode(true);
+    clone.setAttribute('data-etapa-index', etapaCounter);
+    
+    // Limpiar valores del clone
+    clone.querySelectorAll('input').forEach(input => {
+      if (input.type === 'checkbox') {
+        input.checked = false;
+      } else {
+        input.value = '';
+      }
+    });
+    
+    container.appendChild(clone);
+    updateHiddenFields(); // Actualizar campos ocultos
+  });
+
+  container.addEventListener('click', (e) => {
+    if (e.target.classList.contains('remove-etapa')) {
+      if (container.children.length > 1) {
+        e.target.closest('.etapa').remove();
+        updateHiddenFields(); // Actualizar campos ocultos
+      }
+    }
+  });
+
+  // Interceptar el envío del formulario para asegurar que los campos ocultos estén actualizados
+  document.querySelector('form').addEventListener('submit', function(e) {
+    updateHiddenFields();
+  });
+
+  // Inicializar los campos ocultos al cargar la página
+  updateHiddenFields();
+</script>
+
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+    let errores = [];
+
+    // Obtengo fechas del proyecto
+    const inicioProyecto = new Date(document.getElementById('fecha_inicio').value);
+    const finProyecto = new Date(document.getElementById('fecha_fin').value);
+
+    // Validación proyecto
+    if (inicioProyecto > finProyecto) {
+        errores.push("La fecha de inicio del proyecto debe ser anterior a la fecha de fin");
+    }
+
+    // Validación etapas
+    const etapas = document.querySelectorAll('.etapa');
+    etapas.forEach(etapa => {
+        const nombre = etapa.querySelector('.etapa-nombre').value.trim();
+        const inicioEtapa = new Date(etapa.querySelector('.etapa-inicio').value);
+        const finEtapa = new Date(etapa.querySelector('.etapa-fin').value);
+        const cantidad = parseInt(etapa.querySelector('.cant-aporte').value);
+
+        if (!nombre) return;  // Evitar basura si la etapa está vacía
+
+        if (inicioEtapa > finEtapa) {
+            errores.push(`La fecha de inicio de la etapa "${nombre}" es posterior a su fecha de fin.`);
+        }
+        if (inicioEtapa < inicioProyecto) {
+            errores.push(`La etapa "${nombre}" inicia antes que el proyecto.`);
+        }
+        if (finEtapa > finProyecto) {
+            errores.push(`La etapa "${nombre}" finaliza después del proyecto.`);
+        }
+        if (cantidad <= 0) {
+            errores.push(`La cantidad del aporte de la etapa "${nombre}" debe ser mayor a 0.`);
+        }
+    });
+
+    // Si hay errores, detengo el submit
+    if (errores.length > 0) {
+        e.preventDefault();
+
+        alert(errores.join("\n"));  
+        // Aquí podrías mostrarlo también en un div si querés algo más estético
+    }
+});
+</script>
+
+{% endblock %}

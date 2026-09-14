@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Compromisos para: {{ proyecto.nombre }}</h2>
+
+  <p><strong>Estado:</strong> {{ proyecto.estado }}</p>
+
+  {% if commitments %}
+    <ul class="list-group">
+      {% for c in commitments %}
+        <li class="list-group-item">
+          <strong>ONG:</strong> {{ c.nombre_ong }} <br>
+          <strong>Aporte:</strong> {{ c.aporte }} <br>
+          <strong>Cantidad:</strong> {{ c.cantidad }} <br>
+          <strong>Cumplido:</strong> {{ c.cumplido }}
+        </li>
+        {% if proyecto.estado == "En ejecucion" and not c.cumplido %}
+          <a href="{% url 'terminar_compromiso' c.id proyecto.id %}" class="btn btn-success"> Marcar Compromiso Cumplido</a>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No se encontraron compromisos remotos o la API no está disponible.</p>
+  {% endif %}
+
+  {% if proyecto.estado == 'Cubierto' %}
+    <form id="finalize-form" method="post" class="mt-3">
+      {% csrf_token %}
+      <button id="finalize-btn" type="submit" class="btn btn-success">Ejecutar Proyecto</button>
+      <a href="{% url 'mis_proyectos' %}" class="btn btn-secondary">Volver</a>
+    </form>
+  {% endif %}
+  <script>
+    (function(){
+      const form = document.getElementById('finalize-form');
+      const btn = document.getElementById('finalize-btn');
+      if (!form || !btn) return;
+      form.addEventListener('submit', function(e){
+        // if button is disabled, don't confirm
+        if (btn.disabled) return;
+        const ok = confirm('¿Seguro que querés marcar como finalizado este pedido de ayuda?');
+        if (!ok) {
+          e.preventDefault();
+        }
+      });
+    })();
+  </script>
+
+</div>
+{% endblock %}

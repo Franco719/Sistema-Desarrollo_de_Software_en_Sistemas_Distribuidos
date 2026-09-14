@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2> Verificar Proyectos en Ejecución </h2>
+    <p> Está a punto de realizar observaciones sobre los proyectos en ejecución ahora mismo,
+        lo cuál es solo posible hacerlo dos veces por mes. Actualmente a realizado {{cant_intentos}} verificaciones a los proyectos. 
+        Si presiona el botón, podrá hacer observaciones si es que le apetece pero se descontará de las verificaciones posibles
+        por este mes. </p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-warning" {% if cant_intentos >= 2 %}disabled{% endif %}>
+            Verificar Proyectos en Ejecución
+        </button>
+
+    </form>
+</div>
+{% endblock %}

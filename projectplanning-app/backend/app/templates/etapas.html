@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Etapas — {{ proyecto.nombre }}{% endblock %}
+
+{% block extra_head %}
+<style>
+        .etapa-card { margin-bottom: 1rem; }
+        .meta { font-size: .9em; color: #555; }
+        .badge-help { background: #dc3545; color: #fff; font-weight: 600; }
+        .aporte-field { display: none; margin-top: .75rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h4 mb-0">Etapas del proyecto</h1>
+            <div class="small text-muted">{{ proyecto.nombre }} — ONG: {{ proyecto.ong_responsable }}</div>
+        </div>
+        <div>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'pedidos' %}">Volver a Pedidos</a>
+        </div>
+    </div>
+
+    <form method="post" id="oferta-form">
+        {% csrf_token %}
+
+        {% if etapas and etapas|length > 0 %}
+            <div class="row">
+                {% for etapa in etapas %}
+                    <div class="col-12 etapa-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title mb-1">Nombre Etapa: {{ etapa.nombre_etapa }}</h4>
+                                        <h5 class="card-title mb-1">Aporte Necesario: {{ etapa.nombre_aporte }}</h5>
+                                        <div class="meta">Cantidad necesaria: {{ etapa.cant_aporte_necesario }}, actual: {{ etapa.cant_aporte_actual }} • Inicio: {{ etapa.fecha_inicio }} — Fin: {{ etapa.fecha_fin }}</div>
+                                    </div>
+                                    <div class="text-end">
+                                        {% if etapa.requiere_ayuda and etapa.cant_aporte_actual != etapa.cant_aporte_necesario %}
+                                            <div class="mb-2">
+                                                <span class="badge badge-help">Requiere ayuda</span>
+                                            </div>
+                                            <div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input help-checkbox" type="checkbox" name="ayuda" value="{{ etapa.id }}" id="help-{{ etapa.id }}">
+                                                    <label class="form-check-label small" for="help-{{ etapa.id }}">Me ofrezco</label>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="text-muted small">No requiere ayuda</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                {% if etapa.requiere_ayuda %}
+                                    <div class="aporte-field" id="aporte-wrapper-{{ etapa.id }}">
+                                        <div class="row g-2">
+                                           <!--  <div class="col-md-8">
+                                                <label for="aporte-{{ etapa.id }}" class="form-label small">Aporte:</label>
+                                                <input type="text" class="form-control" name="aporte_{{ etapa.id }}" id="aporte-{{ etapa.id }}" placeholder="Ej: Donación de materiales / Mano de obra / $" disabled>
+                                            </div>-->
+                                            <div class="col-md-4">
+                                                <label for="cantidad-{{ etapa.id }}" class="form-label small">Cantidad:</label>
+                                                <input type="number" min="1" class="form-control" name="cantidad_{{ etapa.id }}" id="cantidad-{{ etapa.id }}" placeholder="Cant." disabled>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">Enviar ofertas</button>
+            </div>
+        {% else %}
+            <p>No hay etapas para este proyecto.</p>
+        {% endif %}
+    </form>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+                // Para cada checkbox, mostrar/ocultar el campo de aporte correspondiente
+                document.querySelectorAll('.help-checkbox').forEach(function(checkbox){
+                        const id = checkbox.value;
+                        const wrapper = document.getElementById('aporte-wrapper-' + id);
+                        const aporteInput = document.getElementById('aporte-' + id);
+                        const cantidadInput = document.getElementById('cantidad-' + id);
+
+                        function update() {
+                                if (checkbox.checked) {
+                                        if (wrapper) wrapper.style.display = 'block';
+                                        if (aporteInput) aporteInput.disabled = false;
+                                        if (cantidadInput) cantidadInput.disabled = false;
+                                } else {
+                                        if (wrapper) wrapper.style.display = 'none';
+                                        if (aporteInput) { aporteInput.disabled = true; aporteInput.value = ''; }
+                                        if (cantidadInput) { cantidadInput.disabled = true; cantidadInput.value = ''; }
+                                }
+                        }
+
+                        // Inicializar (en caso de estados iniciales)
+                        update();
+
+                        // Evento
+                        checkbox.addEventListener('change', update);
+                });
+
+                // Evitar enviar inputs de aporte/cantidad deshabilitados (por seguridad extra)
+                document.getElementById('oferta-form')?.addEventListener('submit', function(e){
+                        document.querySelectorAll('[id^="aporte-"]')?.forEach(function(inp){
+                                if (inp.disabled) inp.removeAttribute('name');
+                        });
+                        document.querySelectorAll('[id^="cantidad-"]')?.forEach(function(inp){
+                                if (inp.disabled) inp.removeAttribute('name');
+                        });
+                });
+        });
+</script>
+{% endblock %}

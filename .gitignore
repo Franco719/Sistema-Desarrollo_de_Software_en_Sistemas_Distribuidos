@@ -1,0 +1,323 @@
+# ============================================================
+# SISTEMA OPERATIVO
+# ============================================================
+
+# Linux
+*~
+.directory
+.Trash-*
+.nfs*
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+
+
+# ============================================================
+# IDE / EDITORES
+# ============================================================
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# JetBrains / IntelliJ / PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/.nb-gradle/
+
+
+# ============================================================
+# VARIABLES DE ENTORNO / SECRETOS
+# ============================================================
+
+.env
+.env.*
+!.env.example
+
+*.pem
+*.key
+*.crt
+
+# Credenciales / configuraciones locales
+secrets/
+credentials/
+*.secret
+*.credentials
+
+
+# ============================================================
+# PYTHON
+# ============================================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Poetry
+# No ignorar poetry.lock normalmente; es conveniente versionarlo.
+
+# pytest
+.pytest_cache/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Ruff
+.ruff_cache/
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+*.py,cover
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+share/python-wheels/
+
+# PyInstaller
+*.manifest
+*.spec
+
+
+# ============================================================
+# DJANGO
+# ============================================================
+
+# SQLite
+*.sqlite3
+*.sqlite3-journal
+
+# Django local files
+local_settings.py
+
+# Media / uploads
+media/
+
+# Static collected files
+staticfiles/
+
+
+# ============================================================
+# JAVASCRIPT / NODE / VUE
+# ============================================================
+
+node_modules/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+.npm/
+.yarn/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+out/
+
+# Vite
+.vite/
+
+# Nuxt
+.nuxt/
+.output/
+
+# Next.js
+.next/
+.vercel/
+
+# Vue
+*.local
+
+
+# ============================================================
+# BASES DE DATOS
+# ============================================================
+
+*.db
+*.db3
+*.sqlite
+*.sqlite3
+
+# MySQL dumps
+*.sql.gz
+
+# PostgreSQL dumps
+*.dump
+*.backup
+
+# MongoDB dumps
+dump/
+
+# Redis
+dump.rdb
+appendonly.aof
+
+
+# ============================================================
+# DOCKER
+# ============================================================
+
+# Docker overrides
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Local Docker environment
+.docker/
+
+
+# ============================================================
+# LOGS
+# ============================================================
+
+*.log
+logs/
+log/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+
+# ============================================================
+# TEMPORALES
+# ============================================================
+
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.backup
+*.old
+
+*.orig
+*.rej
+
+# Lock files temporales
+*.lock
+
+
+# ============================================================
+# ARCHIVOS GENERADOS
+# ============================================================
+
+*.cache
+.cache/
+temp/
+tmp/
+
+# Compilaciones
+*.o
+*.obj
+*.a
+*.so
+*.dll
+*.exe
+
+
+# ============================================================
+# CERTIFICADOS / TLS
+# ============================================================
+
+*.pem
+*.key
+*.csr
+*.p12
+*.pfx
+
+
+# ============================================================
+# ARCHIVOS GRANDES / DATOS LOCALES
+# ============================================================
+
+# Dataset generado localmente
+datasets/
+dataset/
+data/
+
+# Modelos entrenados
+models/
+*.h5
+*.keras
+*.pth
+*.pt
+*.onnx
+
+# Machine Learning
+wandb/
+.mlflow/
+
+
+# ============================================================
+# FRONTEND GENERADO
+# ============================================================
+
+public/build/
+public/dist/
+
+
+# ============================================================
+# DOCUMENTACIÓN / EXPORTACIONES LOCALES
+# ============================================================
+
+# Descomentar si no querés subir estos archivos:
+# *.pdf
+# *.docx
+# *.pptx
+
+
+# ============================================================
+# ARCHIVOS PERSONALES DEL DESARROLLADOR
+# ============================================================
+
+notes/
+notas/
+personal/
+local/

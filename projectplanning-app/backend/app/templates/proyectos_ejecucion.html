@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Proyectos en Ejecución</h2>
+  
+  {% if proyectos %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>ONG Responsable</th>
+          <th>Fecha inicio</th>
+          <th>Fecha fin</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for proyecto in proyectos %}
+        <tr>
+          <td>{{ proyecto.nombre }}</td>
+          <td>{{ proyecto.ong_responsable }}</td>
+          <td>{{ proyecto.fecha_inicio }}</td>
+          <td>{{ proyecto.fecha_fin }}</td>
+          <td>
+            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalObservacion{{ proyecto.id }}">
+              Marcar observaciones
+            </button>
+          </td>
+        </tr>
+        
+        <!-- Modal para agregar observación -->
+        <div class="modal fade" id="modalObservacion{{ proyecto.id }}" tabindex="-1" aria-labelledby="modalObservacionLabel{{ proyecto.id }}" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="modalObservacionLabel{{ proyecto.id }}">Agregar observación - {{ proyecto.nombre }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="project_id" value="{{ proyecto.id }}">
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label for="observacion{{ proyecto.id }}" class="form-label">Observación</label>
+                    <textarea class="form-control" id="observacion{{ proyecto.id }}" name="observacion" rows="4" required placeholder="Escribe tu observación aquí..."></textarea>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="submit" class="btn btn-primary">Guardar observación</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-info">
+      <p>No hay proyectos en ejecución en este momento.</p>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

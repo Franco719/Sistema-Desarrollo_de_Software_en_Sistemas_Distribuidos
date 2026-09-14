@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio — ProjectPlanning{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <h1 class="display-6 fw-bold mb-3">Gestión colaborativa de proyectos para ONGs</h1>
+      <p class="lead text-muted mb-4">ProjectPlanning facilita la planificación y coordinación entre organizaciones: las ONGs cargan proyectos y etapas pidiendo ayuda; otras organizaciones pueden ver esos pedidos y ofrecerse para colaborar.</p>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-body card-action flex-column text-center">
+              <h5 class="card-title">Crear proyecto</h5>
+              <p class="card-text small text-muted">Cargar plan de trabajo, fechas y plan económico.</p>
+              <a href="{% url 'alta_proyecto' %}" class="btn btn-primary mt-2">Alta de proyecto</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card shadow-sm">
+            <div class="card-body card-action flex-column text-center">
+              <h5 class="card-title">Pedidos</h5>
+              <p class="card-text small text-muted">Ver proyectos que requieren ayuda y ofrecer colaboración en sus etapas.</p>
+              <a href="{% url 'pedidos' %}" class="btn btn-outline-primary mt-2">Ver pedidos</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+{% endblock %}

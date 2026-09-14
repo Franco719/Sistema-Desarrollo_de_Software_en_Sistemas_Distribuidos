@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Pedidos — ProjectPlanning{% endblock %}
+
+{% block extra_head %}
+<style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px 12px; border: 1px solid #ddd; }
+        th { background: #f4f4f4; }
+        .actions { text-align: center; }
+        .small { font-size: .9em; color: #666; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <h1 class="mb-3">Pedidos (Proyectos)</h1>
+
+    {% if proyectos and proyectos|length > 0 %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>ONG Responsable</th>
+                    <th>Fechas</th>
+                    <th>Plan económico</th>
+                    <th class="actions">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for proyecto in proyectos %}
+                <tr>
+                    <td>{{ proyecto.nombre }}</td>
+                    <td>{{ proyecto.ong_responsable }}</td>
+                    <td>
+                        <span class="small">Inicio: {{ proyecto.fecha_inicio }}</span><br>
+                        <span class="small">Fin: {{ proyecto.fecha_fin }}</span>
+                    </td>
+                    <td class="small">{{ proyecto.plan_economico|truncatechars:120 }}</td>
+                    <td class="actions">
+                        <a class="btn btn-sm btn-outline-primary" href="{% url 'ver_etapas' proyecto.id %}">Ver Etapas</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay proyectos disponibles.</p>
+    {% endif %}
+
+    <p><a href="{% url 'home' %}">Volver al inicio</a></p>
+{% endblock %}

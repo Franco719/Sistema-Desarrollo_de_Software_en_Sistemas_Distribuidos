@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "projectplanning-app"
+version = "0.1.0"
+description = ""
+authors = ["Juan Pablo Miyagusuku <jpmiya82@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+django = "^5.2.6"
+psycopg2-binary = "^2.9.10"
+dotenv = "^0.9.9"
+psycopg = {extras = ["binary"], version = "^3.2.10"}
+requests = "^2.32.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

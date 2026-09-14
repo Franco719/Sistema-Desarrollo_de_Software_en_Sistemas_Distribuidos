@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Tablero Gerencial{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Tablero Gerencial</h1>
+    <p class="text-muted">Integración de datos de BD local + Bonita BPM</p>
+
+    <!-- Tabs de navegación -->
+    <ul class="nav nav-tabs mb-4" id="tableroTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="proyectos-tab" data-bs-toggle="tab" data-bs-target="#proyectos" type="button" role="tab" aria-controls="proyectos" aria-selected="true">
+                Proyectos Abiertos
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="etapas-tab" data-bs-toggle="tab" data-bs-target="#etapas" type="button" role="tab" aria-controls="etapas" aria-selected="false">
+                Etapas y Tareas Pendientes
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="kpis-tab" data-bs-toggle="tab" data-bs-target="#kpis" type="button" role="tab" aria-controls="kpis" aria-selected="false">
+                KPIs del Sistema
+            </button>
+        </li>
+    </ul>
+
+    <!-- Contenido de las tabs -->
+    <div class="tab-content" id="tableroTabsContent">
+        <!-- Tab 1: Proyectos -->
+        <div class="tab-pane fade show active" id="proyectos" role="tabpanel" aria-labelledby="proyectos-tab">
+            <h3>Proyectos Abiertos con Estado en Bonita</h3>
+        
+            {% if proyectos %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>ONG Responsable</th>
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Fin</th>
+                            <th>Estado BD</th>
+                            <th>Case ID Bonita</th>
+                            <th>Estado Bonita</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for proyecto in proyectos %}
+                        <tr>
+                            <td>{{ proyecto.id }}</td>
+                            <td>{{ proyecto.nombre }}</td>
+                            <td>{{ proyecto.ong_responsable }}</td>
+                            <td>{{ proyecto.fecha_inicio|date:"Y-m-d" }}</td>
+                            <td>{{ proyecto.fecha_fin|date:"Y-m-d" }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if proyecto.estado_bd == 'Pendiente' %}bg-warning
+                                    {% elif proyecto.estado_bd == 'En ejecucion' %}bg-primary
+                                    {% elif proyecto.estado_bd == 'Finalizado' %}bg-success
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ proyecto.estado_bd }}
+                                </span>
+                            </td>
+                            <td>{{ proyecto.case_id|default:"Sin case_id" }}</td>
+                            <td>
+                                {% if proyecto.estado_bonita != 'N/A' %}
+                                    <span class="badge bg-info">{{ proyecto.estado_bonita }}</span>
+                                {% else %}
+                                    <span class="text-muted">No disponible</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">No hay proyectos registrados.</div>
+            {% endif %}
+        </div>
+
+        <!-- Tab 2: Etapas y Tareas -->
+        <div class="tab-pane fade" id="etapas" role="tabpanel" aria-labelledby="etapas-tab">
+            <h3>Etapas Registradas + Tareas Humanas Pendientes</h3>
+            {% if etapas %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Proyecto</th>
+                            <th>Nombre Etapa</th>
+                            <th>Aporte</th>
+                            <th>Cant. Necesario</th>
+                            <th>Cant. Actual</th>
+                            <th>Requiere Ayuda</th>
+                            <th>Tareas Pendientes</th>
+                            <th>Detalle Tareas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for etapa in etapas %}
+                        <tr>
+                            <td>{{ etapa.id }}</td>
+                            <td>{{ etapa.proyecto_nombre }}</td>
+                            <td>{{ etapa.nombre_etapa }}</td>
+                            <td>{{ etapa.nombre_aporte }}</td>
+                            <td>{{ etapa.cant_necesario }}</td>
+                            <td>{{ etapa.cant_actual }}</td>
+                            <td>
+                                {% if etapa.requiere_ayuda %}
+                                    <span class="badge bg-warning">Sí</span>
+                                {% else %}
+                                    <span class="badge bg-success">No</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if etapa.tareas_pendientes > 0 %}
+                                    <span class="badge bg-danger">{{ etapa.tareas_pendientes }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">0</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if etapa.tareas_detalle %}
+                                    <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#tareasModal{{ etapa.id }}">
+                                        Ver Tareas
+                                    </button>
+                                    
+                                    <!-- Modal con detalle de tareas -->
+                                    <div class="modal fade" id="tareasModal{{ etapa.id }}" tabindex="-1" aria-labelledby="tareasModalLabel{{ etapa.id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="tareasModalLabel{{ etapa.id }}">Tareas Pendientes - {{ etapa.nombre_etapa }}</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <ul class="list-group">
+                                                        {% for tarea in etapa.tareas_detalle %}
+                                                        <li class="list-group-item">
+                                                            <strong>{{ tarea.nombre }}</strong><br>
+                                                            <small class="text-muted">ID: {{ tarea.id }} | Estado: {{ tarea.estado }}</small>
+                                                        </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">Sin tareas</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">No hay etapas registradas.</div>
+            {% endif %}
+        </div>
+
+        <!-- Tab 3: KPIs -->
+        <div class="tab-pane fade" id="kpis" role="tabpanel" aria-labelledby="kpis-tab">
+            <h3>KPIs de Carga Global del Sistema</h3>
+            <p class="text-muted">Métricas clave del sistema integradas de BD local + Bonita BPM</p>
+            
+            <div class="row mt-4">
+                <!-- KPI 1: Total Proyectos -->
+                <div class="col-md-3 mb-4">
+                    <div class="card text-center shadow-sm">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Total de Proyectos</h6>
+                            <h2 class="card-title text-primary">{{ kpis.total_proyectos }}</h2>
+                            <p class="card-text"><small>Proyectos cargados en el sistema</small></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- KPI 2: Procesos Bonita Activos -->
+                <div class="col-md-3 mb-4">
+                    <div class="card text-center shadow-sm">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Procesos Activos</h6>
+                            <h2 class="card-title text-success">{{ kpis.procesos_bonita_activos }}</h2>
+                            <p class="card-text"><small>Casos activos en Bonita BPM</small></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- KPI 3: Usuarios Activos -->
+                <div class="col-md-3 mb-4">
+                    <div class="card text-center shadow-sm">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Usuarios Activos</h6>
+                            <h2 class="card-title text-info">{{ kpis.usuarios_activos_mes }}</h2>
+                            <p class="card-text"><small>Usuarios activos en el último mes</small></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- KPI 4: Compromisos Pendientes -->
+                <div class="col-md-3 mb-4">
+                    <div class="card text-center shadow-sm">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Compromisos Pendientes</h6>
+                            <h2 class="card-title text-warning">{{ kpis.compromisos_pendientes }}</h2>
+                            <p class="card-text"><small>Etapas que requieren ayuda</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gráfico de resumen -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">Resumen de Estado del Sistema</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Indicadores de Carga</h6>
+                                    <ul class="list-group">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Total de Proyectos
+                                            <span class="badge bg-primary rounded-pill">{{ kpis.total_proyectos }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Procesos en Ejecución (Bonita)
+                                            <span class="badge bg-success rounded-pill">{{ kpis.procesos_bonita_activos }}</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Indicadores de Actividad</h6>
+                                    <ul class="list-group">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Usuarios Activos (30 días)
+                                            <span class="badge bg-info rounded-pill">{{ kpis.usuarios_activos_mes }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            Compromisos Pendientes
+                                            <span class="badge bg-warning rounded-pill">{{ kpis.compromisos_pendientes }}</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
